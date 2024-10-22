@@ -13,21 +13,38 @@ class FamilyStructure:
         self.last_name = last_name
         self.next_id = 1
         # example list of members
-        self._members = []
+        self._members = [
+            {"id": self._generateId(), "first_name": "Tommy", "age": 30, "lucky_numbers": [7, 13, 22], "last_name": self.last_name},
+            {"id": self._generateId(), "first_name": "Michael", "age": 50, "lucky_numbers": [1, 9, 34], "last_name": self.last_name},
+            {"id": self._generateId(), "first_name": "Janet", "age": 54, "lucky_numbers": [9, 21, 33], "last_name": self.last_name}
+        ]
 
     # read-only: Use this method to generate random members ID's when adding members into the list
     def _generateId(self):
         return randint(0, 99999999)
 
     def add_member(self, member):
-        member["id"] = self._generateId()
-        member["first_name"] = self.first_name
-        member["age"] = self.age
-        member["lucky_numbers"] = self.lucky_numbers
+        # Verificar si el miembro ya tiene un ID, si no, generar uno
+        if "id" not in member:
+            member["id"] = self._generateId()
+
+            # Añadir el apellido automáticamente
+        member["last_name"] = self.last_name    
+
+            # Añadir el miembro a la lista
         self._members.append(member)
 
+        # member["first_name"] = self.first_name
+        # member["age"] = self.age
+        # member["lucky_numbers"] = self.lucky_numbers
+        # self._members.append(member)
+
     def delete_member(self, id):
-        self._members = [m for m in self._members if m["id"] != id]
+        member_to_delete = self.get_member(id)
+        if member_to_delete:
+            self._members = [m for m in self._members if m["id"] != id]
+            return {"done": True}
+        return {"done": False}
         
 
     def get_member(self, id):

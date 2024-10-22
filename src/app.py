@@ -28,50 +28,44 @@ def sitemap():
 #FAMILY ROUTES
 #GET ALL MEMBERS
 @app.route('/members', methods=['GET'])
-def get_members():
+def get_all_members():
 
     # this is how you can use the Family datastructure by calling its methods
     members = jackson_family.get_all_members()
-    response_body = {
-        "family": members
-    }
+    # response_body = {
+    #     "family": members
+    # }
 
-    return jsonify(response_body), 200
+    return jsonify(members), 200
 
 #GET A MEMBER BY ID
 @app.route('/member/<int:member_id>', methods=['GET'])
-def get_member():
+def get_member(member_id):
+    member = jackson_family.get_member(member_id)
 
-    member = jackson_family.get_member()
-    response_body = {
-        "member": member
-    }
-
-    return jsonify(response_body), 200
+    if member:
+        return jsonify(member), 200
+    else:
+        return jsonify({"message": "Member not found"}), 404
 
 
 #ADD A MEMBER
 @app.route('/member', methods=['POST'])
 def add_member():
-    # Obtener los datos del cuerpo de la solicitud
-    body = request.get_json()
+    # Recoger datos del request
+    member_data = request.get_json()
 
-# Verificar que se envíen los datos correctos
-    if not body:
-        return jsonify({"message": "Invalid input, must provide a valid JSON"}), 400
-    if "first_name" not in body or "age" not in body or "lucky_numbers" not in body:
-        return jsonify({"message": "Missing some required fields"}), 400
+    if not member_data:
+        return jsonify({"message": "No data provided"}), 400
     
-    new_member={
-        "first_name": body["first_name"],
-        "age": body["age"],
-        "lucky_numbers": body["lucky_numbers"]
-    }
+    if "first_name" not in member_data or "age" not in member_data or "lucky_numbers" not in member_data:
+        return jsonify({"message": "Missing required fields"}), 400
 
-    # Agregar el nuevo miembro a la familia
-    jackson_family.add_member(new_member)
+    # Añadir el miembro a la familia
+    jackson_family.add_member(member_data)
 
-    return jsonify({"message": "Member added successfully", "member": new_member}), 200
+    return jsonify({"message": "Member added successfully"}), 200
+
 
 #DELETE MEMBER
 @app.route('/member/<int:id>', methods=['DELETE'])
@@ -81,9 +75,9 @@ def delete_member(id):
 
     if member:
         jackson_family.delete_member(id)
-        return jsonify({"message": f"Member with id {id} deleted successfully"}), 200
+        return jsonify({"done": True,"message": f"Member with id {id} deleted successfully"}), 200
     else:
-        return jsonify({"message": "Member not found"}), 404
+        return jsonify({"done": False,"message": "Member not found"}), 404
     
 
 # this only runs if `$ python src/app.py` is executed
